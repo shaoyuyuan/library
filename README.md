@@ -1,5 +1,5 @@
 # library
-图书馆里系统
+图书馆管理系统
 
 	目录 
 		application/admin 后台管理
