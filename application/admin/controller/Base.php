@@ -25,12 +25,39 @@ class Base extends Controller
 
         //实例化redis
         $this->redis = new Redis();
-    	//测试使用,behavior已经验证token了，这步不需要验证了
-        $adminGetCache = $this->redis->initRedis(config('data_config.admin')['select'])
-                    ->getCache(Request::instance()->header()['token'] ?? input('token'));
+
+        $token = Request::instance()->header()['token'] ?? input('token');
 
     	//定义用户信息
-    	$this->token = $adminGetCache['data'];
+    	$this->token = $token;
 
     }
+
+    /**
+     * 返回数据
+     * @param $code (int or array)
+     * @param null $msg
+     * @param null $data
+     */
+    protected function end($code = 200, $msg=null, $data=null) {
+
+
+        if(is_array($code))
+        {
+            $return_data['code'] = $code['code'];
+            $return_data['msg'] = $code['msg'];
+            $return_data['data'] = $code['data'];
+
+        }else{
+
+            $return_data['code'] = $code;
+            $return_data['msg'] = $msg;
+            $return_data['data'] = $data;
+
+        }
+
+        return json($return_data);
+
+    }
+
 }

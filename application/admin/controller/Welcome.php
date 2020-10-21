@@ -2,8 +2,6 @@
 namespace app\admin\controller;
 
 use think\Request;
-use think\Config;   //加载配置
-use app\common\redis\Redis;
 
 /**
  * Class Welcome 后台登录登出注册控制器
@@ -12,6 +10,18 @@ use app\common\redis\Redis;
 class Welcome extends Base
 {
 
+    //login登录业务
+    protected $login = null;
+
+    public function initialize()
+    {
+
+        parent::initialize();
+
+        //实例化service
+        $this->login = controller("LoginService", "service");
+
+    }
 
     /**
      * 登录API 获取token
@@ -20,61 +30,26 @@ class Welcome extends Base
     public function loginSubmit()
     {
 
-        $username = input('username');
-        $password = input('password');
+        //验证器
+        $validate = new \app\admin\validate\Login();
 
-        //验证用户名，密码
-        if (empty($username) || empty($password)) {
+        //信息验证
+        if (!$validate->check(input())) {
 
-            return json([
-                'code' => 102,
-                'msg'  => '用户名或密码必填',
-                'data' => null
-            ]);
-            
-        }
-
-        //查询用户信息
-        $admin = db('admin')
-            ->field('id,username,password,is_del')
-            ->where(['username' => $username, 'is_del' => 0])
-            ->find();
-
-        //用户信息验证
-        if (empty($admin)) {
-            
-            return json([
-                'code' => 102,
-                'msg'  => '用户不存在',
-                'data' => null
-            ]);
-        } elseif ($admin['password'] != md5(md5($password . 'library'))) {
-            //验证密码
-            return json([
-                'code' => 102,
-                'msg'  => '密码错误',
-                'data' => null
-            ]);
+            return $this->end('102', $validate->getError());
 
         }
 
-        //登录成功，写一个token，里面存放用户的基本信息，有效期10天
-        $token = strtoupper(md5($username .time()));
+        $result = $this->login->login( input() );
 
-        $ttl = 10*86400;
-
-        //token缓存
-        $adminSetCache = $this->redis->initRedis(config("data_config.admin")['select'])
-                    ->setCache($token, $admin, $ttl);
-
-        return json($adminSetCache);
+        return $this->end($result);
     }
 
     /**
      * 登出API
      * @return mixed
      */
-    public function logoutSubmit()
+    public function loginOut()
     {
 
         if (!$this->token) {
@@ -86,10 +61,9 @@ class Welcome extends Base
         }
 
         //登出成功，清除缓存
-        $adminDelCache = $this->redis->initRedis(config("data_config.admin")['select'])
-                    ->delCache($this->token);
+        $result = $this->login->loginOut($this->token);
 
-        return json($adminDelCache);
+        return $this->end($result);
 
     }
 

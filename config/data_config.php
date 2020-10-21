@@ -16,7 +16,7 @@ return [
 
     //管理员
     'admin' => [
-        'select'=>0,    //缓存库
+        'select'=>4,    //缓存库
         'timeout'=>10 * 86400,    //过期时间
         'table_name'=>'管理员',
     ],

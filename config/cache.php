@@ -28,9 +28,19 @@ return [
         'path'  =>  '../runtime/cache/',
     ],
  
+//    'redis'	=>	[
+//        'type'	=>	'redis',
+//        'host'	=>	'192.168.245.128',
+//        'port' => 6379,
+//        'password' => '123456',
+//        // 缓存前缀
+//        'prefix'=>  'lb',
+//        'timeout'=> 3600,
+//	    'select' 	=> 0,  //默认库
+//    ],
     'redis'	=>	[
         'type'	=>	'redis',
-        'host'	=>	'192.168.245.128',
+        'host'	=>	'192.168.0.15',
         'port' => 6379,
         'password' => '123456',
         // 缓存前缀
